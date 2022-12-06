@@ -4,87 +4,121 @@ $(document).ready(initPage)
 // $('.fa-facebook').click(facebookCliked)
 
 function facebookCliked() {
-    console.log('hi');
+  console.log('hi');
 }
 
 function initPage() {
-    console.log('Starting up');
-    renderPortfolios()
-    renderModal()
+  console.log('Starting up');
+  renderPortfolios()
+  addContactEventListener()
+}
+
+function addContactEventListener() {
+  $('.btn-contact-form').on('click', function (e) {
+    e.preventDefault()
+    var email = $('#userEmail').val()
+    var subject = $('#subject').val()
+    var msg = $('#message').val()
+    sendContactMsg(email, subject, msg)
+    $('#userEmail').val('')
+    $('#subject').val('')
+    $('#message').val('')
+  })
+}
+
+function sendContactMsg(email, subject, msg) {
+  const emailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=yuval838@gmail.com&su=${subject}&body=${msg}`
+  window.open(emailLink)
 }
 
 function renderPortfolios() {
-    var protfolios = getProtfolios()
+  var protfolios = getProtfolios()
 
-    var newStrHTMLs = protfolios.map(pro => ` 
+  var newStrHTMLs = protfolios.map(proj => ` 
         <div class="col-md-4 col-sm-6 portfolio-item ">
-          <a  class="portfolio-link" data-toggle="modal" href="#${pro.id}">
+          <a  data-proj-id="${proj.id}"
+          class="protfolio-link" 
+          data-toggle="modal"
+           href="#portfolioModal1"
+           >
             <div class="portfolio-hover">
               <div class="portfolio-hover-content">
-                <i class="fa fa-plus fa-3x"></i>
+             
               </div>
             </div>
-            <img class="img-fluid" src="img/${pro.urel}.jpg" alt="">
+            <img class="img-fluid" 
+            src="img/projs/${proj.id}.jpg">
           </a>
           <div class="portfolio-caption">
-            <h4>${pro.id}</h4>
-            <p class="text-muted">${pro.title}</p>
+            <h4>${proj.id}</h4>
+            <p class="text-muted">${proj.title}</p>
           </div>`
-    )
+  )
 
 
-    $('.container-profolios').html(newStrHTMLs.join(''))
-
-}
-
-function onRenderModal(proId, proDesc, proPublishedAt) {
-    console.log('hi', proId);
-    $('.modal-body h2').text(proId)
-    $('.modal-body img').attr('src', `img/proj/${proId}.jpg`)
-    $('.modal-body p').text(proDesc)
-    $('.list-inline date span').text(proPublishedAt)
-
+  $('.container-profolios').html(newStrHTMLs.join(''))
+  addPortfolioEventListener()
 }
 
 
-function renderModal() {
+function renderModal(projId) {
+  var proj = getProjById(projId)
+  var date = getHumanDate(proj.publishedAt)
 
-    var protfolios = getProtfolios()
+  var strHTML = `
+  <h2>${proj.name}</h2>
+  <p class="item-intro text-muted">
+  ${proj.title}
+  </p>
+  <img
+    class="img-fluid d-block mx-auto"
+    src="img/portfolio/${proj.id}.png"
+    alt="${proj.title}"
+    title="${proj.title}"
+  />
+  <p>
+    ${proj.desc}
+  </p>
+  <ul class="list-inline">
+    <li>Date: ${date}</li>
+    <li>Category: ${proj.category}</li>
+  </ul>
+  <button
+    data-proj-id="${proj.id}"
+    class="btn btn-primary btn-open-proj"
+    type="button"
+  >
+    Open Project
+  </button>
+  <button
+    class="btn btn-primary"
+    data-dismiss="modal"
+    type="button"
+  >
+    <i class="fa fa-times"></i>
+    Close Project
+  </button>
+  `
 
-    var newStrHTMLs = protfolios.map(pro => `
-    <div class="portfolio-modal modal fade" id="${pro.id}" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="close-modal" data-dismiss="modal">
-          <div class="lr">
-            <div class="rl"></div>
-          </div>
-        </div>
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-8 mx-auto">
-              <div class="modal-body">
-                <!-- Project Details Go Here -->
-                <h2>${pro.name}</h2>
-                <p class="item-intro text-muted">${pro.name}</p>
-                <img class="img-fluid d-block mx-auto" src="img/${pro.urel}.jpg" alt="">
-                <p>${pro.desc}</p>
-                <ul class="list-inline">
-                  <li>Date: ${pro.publishedAt}</li>
-                  <li>Client: ${pro.id}</li>
-                  <li>Category: ${pro.title}</li>
-                </ul>
-                <button class="btn btn-primary" data-dismiss="modal" type="button">
-                  <i class="fa fa-times"></i>
-                  Close Project</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-    `)
+  $('.modal-body').html(strHTML)
+  addPortfolioEventListener()
+}
 
-    $('.modal-container').html(newStrHTMLs.join(''))
+function addPortfolioEventListener() {
+  $('.protfolio-link').on('click', function () {
+    const projId = $(this).data('projId')
+    renderModal(projId)
+
+  })
+
+  $('.btn-open-proj').on('click', function () {
+    const projId = $(this).data('projId')
+    goToProj(projId)
+  })
+}
+
+function goToProj(projId) {
+  var proj = getProjById(projId)
+  var projLink = proj.url
+  window.open(projLink, ' _blank')
 }

@@ -16,7 +16,7 @@ function creatProtfolio(id, title, desc) {
         name: id,
         title,
         desc,
-        urel: `projs/${id}`,
+        url: `https://yuvaldavidov.github.io/${id}/`,
         publishedAt: Date.now(),
         labels: ["Matrixes", "keyboard events"]
     }
@@ -24,4 +24,14 @@ function creatProtfolio(id, title, desc) {
 
 function getProtfolios() {
     return gProtfolios
+}
+function getProjById(projId) {
+    const proj = gProtfolios.find((proj) => projId === proj.id)
+    return proj
+}
+
+function getHumanDate(timestamp) {
+    const date = new Date(timestamp)
+    var humanDate = date.toDateString()
+    return humanDate
 }
